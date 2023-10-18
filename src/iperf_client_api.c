@@ -111,7 +111,8 @@ iperf_create_streams(struct iperf_test *test, int sender)
 #if defined(HAVE_TCP_CONGESTION)
 	if (test->protocol->id == Ptcp) {
 	    if (test->congestion) {
-                if(sender_id % 2 == 0) { /* CC testing hack: only do this for even numbered senders */
+                if(i % 2 == 0) { /* CC testing hack: only do this for even numbered senders */
+                   printf("setting CC to %s on even numbered stream %d",test->congestion, i);
 		   if (setsockopt(s, IPPROTO_TCP, TCP_CONGESTION, test->congestion, strlen(test->congestion)) < 0) {
 		       saved_errno = errno;
 		       close(s);
@@ -119,7 +120,9 @@ iperf_create_streams(struct iperf_test *test, int sender)
 		       i_errno = IESETCONGESTION;
 		       return -1;
 		   }
-		}
+		} else {
+                   printf("default CC on odd numbered stream %d",i);
+                }
 	    }
 	    {
 		socklen_t len = TCP_CA_NAME_MAX;
