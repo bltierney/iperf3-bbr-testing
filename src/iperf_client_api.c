@@ -112,7 +112,9 @@ iperf_create_streams(struct iperf_test *test, int sender)
 	if (test->protocol->id == Ptcp) {
 	    if (test->congestion) {
                 if(i % 2 == 0) { /* CC testing hack: only do this for even numbered senders */
+                  /* note: this print will break json output
                    printf("setting CC to %s on even numbered stream %d",test->congestion, i);
+                  */
 		   if (setsockopt(s, IPPROTO_TCP, TCP_CONGESTION, test->congestion, strlen(test->congestion)) < 0) {
 		       saved_errno = errno;
 		       close(s);
@@ -121,7 +123,9 @@ iperf_create_streams(struct iperf_test *test, int sender)
 		       return -1;
 		   }
 		} else {
+/*
                    printf("default CC on odd numbered stream %d",i);
+*/
                 }
 	    }
 	    {

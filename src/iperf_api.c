@@ -2727,7 +2727,8 @@ add_to_interval_list(struct iperf_stream_result * rp, struct iperf_interval_resu
 void
 connect_msg(struct iperf_stream *sp)
 {
-    char ipl[INET6_ADDRSTRLEN], ipr[INET6_ADDRSTRLEN];
+    char ipl[INET6_ADDRSTRLEN], ipr[INET6_ADDRSTRLEN], congestion_algorithm[256];
+    socklen_t algo_len = sizeof(congestion_algorithm);
     int lport, rport;
 
     if (getsockdomain(sp->socket) == AF_INET) {
@@ -2746,10 +2747,19 @@ connect_msg(struct iperf_stream *sp)
         rport = ntohs(((struct sockaddr_in6 *) &sp->remote_addr)->sin6_port);
     }
 
+#ifdef linux
+    if (getsockopt(sockfd, IPPROTO_TCP, TCP_CONGESTION, congestion_algorithm, &algo_len) < 0) {
+        perror("getsockopt");
+    }
+#else
+    strcpy((char*)congestion_algorithm, "unknown");
+#endif
+
+
     if (sp->test->json_output)
-        cJSON_AddItemToArray(sp->test->json_connected, iperf_json_printf("socket: %d  local_host: %s  local_port: %d  remote_host: %s  remote_port: %d", (int64_t) sp->socket, ipl, (int64_t) lport, ipr, (int64_t) rport));
+        cJSON_AddItemToArray(sp->test->json_connected, iperf_json_printf("socket: %d  local_host: %s  local_port: %d  remote_host: %s  remote_port: %d  cong_alg: %s", (int64_t) sp->socket, ipl, (int64_t) lport, ipr, (int64_t) rport, congestion_algorithm));
     else
-	iperf_printf(sp->test, report_connected, sp->socket, ipl, lport, ipr, rport);
+	iperf_printf(sp->test, report_connected, sp->socket, ipl, lport, ipr, rport, congestion_algorithm);
 }
 
 
