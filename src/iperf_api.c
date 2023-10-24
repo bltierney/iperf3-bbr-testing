@@ -2748,7 +2748,7 @@ connect_msg(struct iperf_stream *sp)
     }
 
 #ifdef linux
-    if (getsockopt(sockfd, IPPROTO_TCP, TCP_CONGESTION, congestion_algorithm, &algo_len) < 0) {
+    if (getsockopt(sp->socket, IPPROTO_TCP, TCP_CONGESTION, congestion_algorithm, &algo_len) < 0) {
         perror("getsockopt");
     }
 #else
